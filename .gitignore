@@ -73,3 +73,5 @@ fabric.properties
 .gradle
 gradle
 .idea
+build
+.odict.csv
