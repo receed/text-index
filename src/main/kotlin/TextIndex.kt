@@ -1,4 +1,5 @@
 import java.io.File
+import kotlinx.cli.*
 
 val LINES_PER_PAGE = 45
 val partOfSpeech = mutableMapOf<String, String>()
@@ -30,15 +31,36 @@ fun generateIndex(): String {
     return defaultToPages.toList().joinToString("\n") { (default, pages) -> "$default: ${pages.size}" }
 }
 
-fun main() {
-    val fileName = "data/Childhood.txt"
-    val lines = readFile(fileName)
+fun main(args: Array<String>) {
+    val parser = ArgParser("example")
+    val input by parser.option(ArgType.String, shortName = "i", description = "Input file name").required()
+    val output by parser.option(ArgType.String, shortName = "o", description = "Output file name")
+
+    class Index: Subcommand("index", "Create index of file") {
+        override fun execute() {
+
+        }
+    }
+    class Info: Subcommand("info", "Analyze file") {
+        override fun execute() {
+
+        }
+    }
+    class Lines: Subcommand("lines", "Find lines containing word") {
+        override fun execute() {
+
+        }
+    }
+    parser.subcommands(Index(), Info(), Lines())
+    parser.parse(args)
+    val lines = readFile(input)
     for ((lineNumber, line) in lines.withIndex())
         for (word in lineToWords(line)) {
             formToLines.getOrPut(word, { mutableListOf() }).add(lineNumber)
             val default = formToDefault[word]
-            if (default != null)
-                defaultToPages.getOrPut(word, { mutableSetOf()}).add(getPageOfLine(lineNumber))
+            default?.let {
+                defaultToPages.getOrPut(it, { mutableSetOf() }).add(getPageOfLine(lineNumber))
+            }
         }
     println(formToDefault.toList().last())
 }
