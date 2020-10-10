@@ -53,7 +53,21 @@ fun getIndex(fileName: String): Index {
 }
 
 fun writeFile(fileName: String?, lines: List<String>) {
+    val a = lines[1][0]
     File(fileName ?: "result.txt").writeText(lines.joinToString("\n"))
+}
+
+fun wrap(line: String, width: Int = 120): List<String> {
+    val words = line.split(" ")
+    val result = mutableListOf<StringBuilder>()
+    for (word in words) {
+        if (result.isEmpty() || result.last().length + 1 + word.length > width)
+            result.add(StringBuilder())
+        else
+            result.last().append(' ')
+        result.last().append(word)
+    }
+    return result.map { it.toString() }
 }
 
 @ExperimentalCli

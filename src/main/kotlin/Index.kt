@@ -39,8 +39,8 @@ class Index(private val lines: List<String>) {
     fun generateReport(word: String): List<String> {
         if (word !in defaultToOccurrences)
             return listOf("$word: no occurrences")
-        return listOf("$word: ${defaultToOccurrences.getOrDefault(word, 0)} occurrences",
-            "used forms: " + (defaultToForms[word]?.joinToString(", ") ?: ""),
-            "found on pages: " + (defaultToPages[word]?.joinToString(", ") ?: ""))
+        return listOf("$word: ${defaultToOccurrences.getOrDefault(word, 0)} occurrences") +
+            wrap("used forms: " + (defaultToForms[word]?.joinToString(", ") ?: "")) +
+            wrap("found on pages: " + (defaultToPages[word]?.joinToString(", ") ?: ""))
     }
 }
