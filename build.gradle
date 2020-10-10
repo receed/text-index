@@ -1,6 +1,7 @@
 plugins {
     id 'application'
     id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10'
 }
 
 group 'org.example'
@@ -19,10 +20,12 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.6.2'
     implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0'
 }
 test {
     useJUnitPlatform()
 }
 run {
-    args = ["-i", "data/Childhood.txt"]
+    args = ["index", "-i", "data/Childhood.txt", "-o", "data/index.txt"]
 }
