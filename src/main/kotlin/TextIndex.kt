@@ -5,23 +5,24 @@ import kotlinx.serialization.json.*
 import java.lang.IllegalStateException
 
 val LINES_PER_PAGE = 45
-val partOfSpeech = mutableMapOf<String, String>()
 
 class InvalidInputException(message: String) : Exception(message)
 
-val defaultToForms =
-    File("odict.csv").readLines().map { line ->
-        val words = line.split(",")
-        val defaultForm = words[0]
-        partOfSpeech[defaultForm] = words[1]
-        defaultForm to words.drop(2) + defaultForm
-    }.toMap()
+class Dictionary {
+    val partOfSpeech = mutableMapOf<String, String>()
+    val defaultToForms =
+        File("odict.csv").readLines().map { line ->
+            val words = line.split(",")
+            val defaultForm = words[0]
+            partOfSpeech[defaultForm] = words[1]
+            defaultForm to words.drop(2) + defaultForm
+        }.toMap()
 
-val formToDefault = defaultToForms.map { (default, forms) ->
-    forms.map { it to default }
-}.flatten().toMap()
-
-val defaultToPages = mutableMapOf<String, MutableSet<Int>>()
+    val formToDefault =
+        defaultToForms.map { (default, forms) ->
+            forms.map { it to default }
+        }.flatten().toMap()
+}
 
 fun readFile(fileName: String): List<String> {
     val file = File(fileName)
@@ -40,8 +41,7 @@ fun getIndex(fileName: String): Index {
         throw InvalidInputException("$fileName: no such file")
     return try {
         Json.decodeFromString<Index>(file.readText())
-    }
-    catch(e: Exception) {
+    } catch (e: Exception) {
         throw InvalidInputException("Index file is invalid")
     }
 }
@@ -55,7 +55,8 @@ fun main(args: Array<String>) {
     class Index : Subcommand("index", "Create index of file") {
         override fun execute() {
             val lines = readFile(input)
-            val index = Index(lines)
+            val dictionary = Dictionary()
+            val index = Index(lines, dictionary)
             File(output ?: "index.txt").writeText(Json.encodeToString(index))
         }
     }
@@ -70,7 +71,8 @@ fun main(args: Array<String>) {
         val words by argument(ArgType.String, description = "Words to find").vararg()
         override fun execute() {
             val index = getIndex(input)
-            File(output ?: "result.txt").writeText(words.flatMap {listOf("$it:") + index.findLines(it)}.joinToString("\n"))
+            File(output ?: "result.txt").writeText(words.flatMap { listOf("$it:") + index.findLines(it) }
+                .joinToString("\n"))
         }
     }
     parser.subcommands(Index(), Info(), Lines())
@@ -78,11 +80,10 @@ fun main(args: Array<String>) {
         parser.parse(args)
     } catch (e: InvalidInputException) {
         println(e.message)
-    }
-    catch(e: IllegalStateException) {
+    } catch (e: IllegalStateException) {
         println(e.message)
-    }
-    catch(e: Exception) {
+    } catch (e: Exception) {
         println("Unknown error")
     }
 }
+
