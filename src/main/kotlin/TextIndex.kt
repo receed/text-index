@@ -31,7 +31,7 @@ fun readFile(fileName: String): List<String> {
     return File(fileName).readLines().filter { it.isNotBlank() }
 }
 
-fun lineToWords(line: String) = line.replace(Regex("--|[^а-яА-Я-]"), " ").split(" ")
+fun lineToWords(line: String) = line.replace(Regex("--|[^а-яА-Я-]"), " ").split(" ").filter { it.isNotBlank() }
 
 fun getPageOfLine(line: Int) = line / LINES_PER_PAGE + 1
 
@@ -44,6 +44,10 @@ fun getIndex(fileName: String): Index {
     } catch (e: Exception) {
         throw InvalidInputException("Index file is invalid")
     }
+}
+
+fun writeFile(fileName: String?, lines: List<String>) {
+    File(fileName ?: "result.txt").writeText(lines.joinToString("\n"))
 }
 
 @ExperimentalCli
@@ -61,9 +65,18 @@ fun main(args: Array<String>) {
         }
     }
 
+    class Common : Subcommand("common", "Get most common words") {
+        val count by argument(ArgType.Int, description = "Number of most frequent words to find")
+        override fun execute() {
+            val index = getIndex(input)
+            writeFile(output, index.getMostFrequent(count).map { (word, occurences) -> "$word: $occurences" })
+        }
+    }
+
     class Info : Subcommand("info", "Analyze file") {
         override fun execute() {
             val index = getIndex(input)
+            TODO()
         }
     }
 
@@ -71,11 +84,10 @@ fun main(args: Array<String>) {
         val words by argument(ArgType.String, description = "Words to find").vararg()
         override fun execute() {
             val index = getIndex(input)
-            File(output ?: "result.txt").writeText(words.flatMap { listOf("$it:") + index.findLines(it) }
-                .joinToString("\n"))
+            writeFile(output, (words.flatMap { listOf("$it:") + index.findLines(it) }))
         }
     }
-    parser.subcommands(Index(), Info(), Lines())
+    parser.subcommands(Index(), Common(), Info(), Lines())
     try {
         parser.parse(args)
     } catch (e: InvalidInputException) {

@@ -1,5 +1,4 @@
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 data class WordFrequency(val word: String, val occurrences: Int)
 
