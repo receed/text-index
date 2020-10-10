@@ -5,18 +5,23 @@ import kotlinx.serialization.json.*
 import java.lang.IllegalStateException
 
 val LINES_PER_PAGE = 45
+val ignoredParts = setOf("межд.", "союз", "част.", "предл.", "мс-п")
+
 
 class InvalidInputException(message: String) : Exception(message)
 
 class Dictionary {
     val partOfSpeech = mutableMapOf<String, String>()
+    val ignoredWords = mutableSetOf<String>("я", "он")
     val defaultToForms =
         File("odict.csv").readLines().map { line ->
-            val words = line.split(",")
+            val words = line.toLowerCase().split(",")
             val defaultForm = words[0]
             partOfSpeech[defaultForm] = words[1]
+            if (words[1] in ignoredParts)
+                ignoredWords.add(defaultForm)
             defaultForm to words.drop(2) + defaultForm
-        }.toMap()
+        }.filterNotNull().toMap().filterKeys { it !in ignoredWords }
 
     val formToDefault =
         defaultToForms.map { (default, forms) ->
@@ -31,7 +36,7 @@ fun readFile(fileName: String): List<String> {
     return File(fileName).readLines().filter { it.isNotBlank() }
 }
 
-fun lineToWords(line: String) = line.replace(Regex("--|[^а-яА-Я-]"), " ").split(" ").filter { it.isNotBlank() }
+fun lineToWords(line: String) = line.toLowerCase().replace(Regex("--|[^а-я-]"), " ").split(" ").filter { it.isNotBlank() }
 
 fun getPageOfLine(line: Int) = line / LINES_PER_PAGE + 1
 
