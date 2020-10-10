@@ -2,6 +2,7 @@ import java.io.File
 import kotlinx.cli.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
+import java.lang.IllegalStateException
 
 val LINES_PER_PAGE = 45
 val partOfSpeech = mutableMapOf<String, String>()
@@ -33,12 +34,16 @@ fun lineToWords(line: String) = line.replace(Regex("--|[^а-яА-Я-]"), " ").sp
 
 fun getPageOfLine(line: Int) = line / LINES_PER_PAGE + 1
 
-fun generateIndex(): String {
-    return defaultToPages.toList().joinToString("\n") { (default, pages) -> "$default: ${pages.size}" }
-}
-
-fun findLines(word: String): List<String> {
-    return listOf()
+fun getIndex(fileName: String): Index {
+    val file = File(fileName)
+    if (!file.exists())
+        throw InvalidInputException("$fileName: no such file")
+    return try {
+        Json.decodeFromString<Index>(file.readText())
+    }
+    catch(e: Exception) {
+        throw InvalidInputException("Index file is invalid")
+    }
 }
 
 @ExperimentalCli
@@ -57,15 +62,15 @@ fun main(args: Array<String>) {
 
     class Info : Subcommand("info", "Analyze file") {
         override fun execute() {
-
+            val index = getIndex(input)
         }
     }
 
     class Lines : Subcommand("lines", "Find lines containing word") {
+        val words by argument(ArgType.String, description = "Words to find").vararg()
         override fun execute() {
-            val lines = readFile(input)
-            val words by argument(ArgType.String, description = "Words to find").vararg()
-            File(output ?: "result.txt").writeText(TODO())
+            val index = getIndex(input)
+            File(output ?: "result.txt").writeText(words.flatMap {listOf("$it:") + index.findLines(it)}.joinToString("\n"))
         }
     }
     parser.subcommands(Index(), Info(), Lines())
@@ -74,6 +79,10 @@ fun main(args: Array<String>) {
     } catch (e: InvalidInputException) {
         println(e.message)
     }
-
-    println(formToDefault.toList().last())
+    catch(e: IllegalStateException) {
+        println(e.message)
+    }
+    catch(e: Exception) {
+        println("Unknown error")
+    }
 }

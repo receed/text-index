@@ -27,5 +27,6 @@ test {
     useJUnitPlatform()
 }
 run {
-    args = ["index", "-i", "data/Childhood.txt", "-o", "data/index.txt"]
+//    args = ["index", "-i", "data/Childhood.txt", "-o", "data/index.txt"]
+    args = ["lines", "голос", "-i", "data/index.txt", "-o", "data/result.txt"]
 }

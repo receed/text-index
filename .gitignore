@@ -75,3 +75,6 @@ gradle
 .idea
 build
 odict.csv
+data/index.txt
+data/result.txt
+

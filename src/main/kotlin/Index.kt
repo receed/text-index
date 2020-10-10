@@ -7,6 +7,7 @@ data class WordFrequency(val word: String, val occurrences: Int)
 class Index(val lines: List<String>) {
     val formToLines = mutableMapOf<String, MutableList<Int>>()
     val defaultToPages = mutableMapOf<String, MutableSet<Int>>()
+    val defaultToLines = mutableMapOf<String, MutableSet<Int>>()
     val defaultToOccurrences = mutableMapOf<String, Int>()
     val defaultToForms = mutableMapOf<String, MutableSet<String>>()
 
@@ -18,6 +19,7 @@ class Index(val lines: List<String>) {
                 default?.let {
                     defaultToForms.getOrPut(it, { mutableSetOf() }).add(word)
                     defaultToPages.getOrPut(it, { mutableSetOf() }).add(getPageOfLine(lineNumber))
+                    defaultToLines.getOrPut(it, { mutableSetOf() }).add(lineNumber)
                     defaultToOccurrences[it] = defaultToOccurrences.getOrDefault(it, 0) + 1
                 }
             }
@@ -26,4 +28,9 @@ class Index(val lines: List<String>) {
     fun getMostFrequent(count: Int): List<WordFrequency> =
         defaultToOccurrences.map { (word, occurrences) -> WordFrequency(word, occurrences) }
             .sortedByDescending { it.occurrences }.take(count)
+
+    fun findLines(word: String): List<String> {
+        val default = formToDefault.getOrDefault(word, word)
+        return defaultToLines.getOrDefault(default, mutableSetOf()).sorted().map { "${it+1}: ${lines[it]}" }
+    }
 }
