@@ -36,7 +36,8 @@ fun readFile(fileName: String): List<String> {
     return File(fileName).readLines().filter { it.isNotBlank() }
 }
 
-fun lineToWords(line: String) = line.toLowerCase().replace(Regex("--|[^а-я-]"), " ").split(" ").filter { it.isNotBlank() }
+fun lineToWords(line: String) =
+    line.toLowerCase().replace(Regex("--|[^а-я-]"), " ").split(" ").filter { it.isNotBlank() }
 
 fun getPageOfLine(line: Int) = line / LINES_PER_PAGE + 1
 
@@ -78,10 +79,11 @@ fun main(args: Array<String>) {
         }
     }
 
-    class Info : Subcommand("info", "Analyze file") {
+    class Info : Subcommand("info", "Analyze usage of given words") {
+        val words by argument(ArgType.String, description = "Words to find").vararg()
         override fun execute() {
             val index = getIndex(input)
-            TODO()
+            writeFile(output, words.flatMap { index.generateReport(it) })
         }
     }
 
@@ -89,7 +91,7 @@ fun main(args: Array<String>) {
         val words by argument(ArgType.String, description = "Words to find").vararg()
         override fun execute() {
             val index = getIndex(input)
-            writeFile(output, (words.flatMap { listOf("$it:") + index.findLines(it) }))
+            writeFile(output, words.flatMap { listOf("$it:") + index.findLines(it) })
         }
     }
     parser.subcommands(Index(), Common(), Info(), Lines())

@@ -29,5 +29,6 @@ test {
 run {
 //    args = ["index", "-i", "data/Childhood.txt", "-o", "data/index.txt"]
 //    args = ["lines", "пока", "-i", "data/index.txt", "-o", "data/result.txt"]
-    args = ["common", "100", "-i", "data/index.txt", "-o", "data/result.txt"]
+//    args = ["common", "100", "-i", "data/index.txt", "-o", "data/result.txt"]
+    args = ["info", "голова", "взглянуть", "-i", "data/index.txt", "-o", "data/result.txt"]
 }

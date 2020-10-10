@@ -35,4 +35,12 @@ class Index(private val lines: List<String>) {
             defaultToLines[it]
         } ?: formToLines[word]).orEmpty().sorted().map { "${it + 1}: ${lines[it]}" }
     }
+
+    fun generateReport(word: String): List<String> {
+        if (word !in defaultToOccurrences)
+            return listOf("$word: no occurrences")
+        return listOf("$word: ${defaultToOccurrences.getOrDefault(word, 0)} occurrences",
+            "used forms: " + (defaultToForms[word]?.joinToString(", ") ?: ""),
+            "found on pages: " + (defaultToPages[word]?.joinToString(", ") ?: ""))
+    }
 }
