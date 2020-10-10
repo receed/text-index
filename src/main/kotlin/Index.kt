@@ -3,13 +3,13 @@ import kotlinx.serialization.Serializable
 data class WordFrequency(val word: String, val occurrences: Int)
 
 @Serializable
-class Index(val lines: List<String>) {
-    val formToLines = mutableMapOf<String, MutableSet<Int>>()
-    val defaultToPages = mutableMapOf<String, MutableSet<Int>>()
-    val defaultToLines = mutableMapOf<String, MutableSet<Int>>()
-    val defaultToOccurrences = mutableMapOf<String, Int>()
-    val defaultToForms = mutableMapOf<String, MutableSet<String>>()
-    val formToDefault = mutableMapOf<String, String>()
+class Index(private val lines: List<String>) {
+    private val formToLines = mutableMapOf<String, MutableSet<Int>>()
+    private val defaultToPages = mutableMapOf<String, MutableSet<Int>>()
+    private val defaultToLines = mutableMapOf<String, MutableSet<Int>>()
+    private val defaultToOccurrences = mutableMapOf<String, Int>()
+    private val defaultToForms = mutableMapOf<String, MutableSet<String>>()
+    private val formToDefault = mutableMapOf<String, String>()
 
     constructor(lines: List<String>, dictionary: Dictionary) : this(lines) {
         for ((lineNumber, line) in lines.withIndex())
