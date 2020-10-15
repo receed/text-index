@@ -6,7 +6,7 @@ val ignoredParts = setOf("межд.", "союз", "част.", "предл.", "�
 // Parses dictionary of forms from odict.ru
 // Uses odict.csv file in utf-8 charset
 class Dictionary {
-    // Part of sppech of the given word
+    // Part of speech of the given word
     private val partOfSpeech = mutableMapOf<String, String>()
 
     // Words which should be ignored in index. Needed because one word may belong to several parts of speech
