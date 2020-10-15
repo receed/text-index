@@ -7,13 +7,13 @@ val ignoredParts = setOf("межд.", "союз", "част.", "предл.", "�
 // Uses odict.csv file in utf-8 charset
 class Dictionary {
     // Part of sppech of the given word
-    val partOfSpeech = mutableMapOf<String, String>()
+    private val partOfSpeech = mutableMapOf<String, String>()
 
     // Words which should be ignored in index. Needed because one word may belong to several parts of speech
-    val ignoredWords = mutableSetOf<String>("я", "он")
+    private val ignoredWords = mutableSetOf<String>("я", "он")
 
     // List of possible forms of given default form. Initialization fills partOfSpeech and ignoredWords
-    val defaultToForms: Map<String, List<String>> =
+    private val defaultToForms: Map<String, List<String>> =
         File("odict.csv").readLines().map { line ->
             val words = line.toLowerCase().split(",")
             val defaultForm = words[0]
@@ -21,7 +21,7 @@ class Dictionary {
             if (words[1] in ignoredParts)
                 ignoredWords.add(defaultForm)
             defaultForm to words.drop(2) + defaultForm
-        }.filterNotNull().toMap().filterKeys { it !in ignoredWords } // removes function words
+        }.toMap().filterKeys { it !in ignoredWords } // removes function words
 
     // List of forms corresponding to given default form
     val formToDefault =
