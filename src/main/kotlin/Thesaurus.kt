@@ -1,10 +1,13 @@
 import java.io.File
+import java.lang.Exception
 
 val syntacticCategoryNames = mapOf('n' to "noun", 'v' to "verb", 'a' to "adj", 'r' to "adverb")
+
 
 data class Synset(val offset: Int, val category: Char)
 
 val wordSynsets = mutableMapOf<String, MutableList<Synset>>()
+val synsetWords = mutableMapOf<Synset, List<String>>()
 val synsetHyponyms = mutableMapOf<Synset, List<Synset>>()
 val wordsInCategory = mutableMapOf<String, List<String>>()
 val hyponymSymbols = setOf("~", "-c")
@@ -16,7 +19,7 @@ fun readThesaurus() {
         File("rwn3/index.$category").forEachLine { line ->
             val items = line.split(" ").filter { it.isNotBlank() }
             val (lemma, _, synsetCnt) = items
-            wordSynsets.getOrDefault(lemma, mutableListOf())
+            wordSynsets.getOrPut(lemma) { mutableListOf() }
                 .addAll(items.takeLast(synsetCnt.toInt()).map { Synset(it.toInt(), categorySymbol) })
         }
         // Format of each line:
@@ -28,10 +31,15 @@ fun readThesaurus() {
             val wordCount = items[3].toInt()
             val pointerCount = items[4 + wordCount * 2].toInt()
             val synset = Synset(items[0].toInt(), categorySymbol)
-            synsetHyponyms[synset] = items.asSequence().drop(5 + wordCount * 2).chunked(4).take(pointerCount)
+            synsetWords[synset] = items.subList(4, 4 + wordCount * 2).chunked(2).map { (word, _) -> word }
+            synsetHyponyms[synset] = items.drop(5 + wordCount * 2).chunked(4).take(pointerCount)
                 .filter { it[0] in hyponymSymbols }
                 .map { (_, synsetOffset, pointerCategory, _) -> Synset(synsetOffset.toInt(), pointerCategory[0]) }
-                .toList()
         }
     }
+}
+
+fun getHyponyms(word: String): List<String> {
+    return wordSynsets.getOrDefault(word, mutableListOf()).flatMap { synsetHyponyms.getOrDefault(it, listOf()) }
+        .flatMap { synsetWords[it] ?: throw DictionaryError("Empty synset") }
 }

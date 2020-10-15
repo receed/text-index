@@ -9,6 +9,8 @@ val LINES_PER_PAGE = 45
 
 // Exception for invalid input
 class InvalidInputException(message: String) : Exception(message)
+// Exception for bad dictionary format
+class DictionaryError(message: String): java.lang.Exception(message)
 
 // Reads file with text, returns list of non-blank lines
 fun readFile(fileName: String): List<String> {
