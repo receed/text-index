@@ -61,4 +61,14 @@ class Index(private val lines: List<String>) {
                 wrap("used forms: " + (defaultToForms[word]?.joinToString(", ") ?: "")) +
                 wrap("found on pages: " + (defaultToPages[word]?.joinToString(", ") ?: ""))
     }
+
+    fun generateGroupReport(group: String): List<String> {
+        var totalOccurrences = 0
+        val report = getHyponyms(group).mapNotNull {
+            val occurrences = defaultToOccurrences.getOrDefault(it, 0)
+            totalOccurrences += occurrences
+            if (occurrences > 0) "  $it: $occurrences occurrences" else null
+        }
+        return listOf("$group: total $totalOccurrences occurrences") + report
+    }
 }

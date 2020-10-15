@@ -1,7 +1,7 @@
 import java.io.File
 import java.lang.Exception
 
-val syntacticCategoryNames = mapOf('n' to "noun", 'v' to "verb", 'a' to "adj", 'r' to "adverb")
+val syntacticCategoryNames = mapOf('n' to "noun", 'v' to "verb", 'a' to "adj", 'r' to "adv")
 
 
 data class Synset(val offset: Int, val category: Char)
@@ -16,7 +16,7 @@ fun readThesaurus() {
     for ((categorySymbol, category) in syntacticCategoryNames) {
         // Format of each line:
         // lemma  pos  synset_cnt  p_cnt  [ptr_symbol...]  sense_cnt  tagsense_cnt   synset_offset  [synset_offset...]
-        File("rwn3/index.$category").forEachLine { line ->
+        File("rwn3/index.$category").forEachLine(charset("cp1251")) { line ->
             val items = line.split(" ").filter { it.isNotBlank() }
             val (lemma, _, synsetCnt) = items
             wordSynsets.getOrPut(lemma) { mutableListOf() }
@@ -26,9 +26,9 @@ fun readThesaurus() {
         // synset_offset  lex_filenum  ss_type  w_cnt  word  lex_id  [word  lex_id...]  p_cnt  [ptr...]  [frames...]  |   gloss
         // Format of each ptr:
         // pointer_symbol  synset_offset  pos  source/target
-        File("rwn3/data.$category").forEachLine { line ->
+        File("rwn3/data.$category").forEachLine(charset("cp1251")) { line ->
             val items = line.split(" ").filter { it.isNotBlank() }
-            val wordCount = items[3].toInt()
+            val wordCount = items[3].toInt(16)
             val pointerCount = items[4 + wordCount * 2].toInt()
             val synset = Synset(items[0].toInt(), categorySymbol)
             synsetWords[synset] = items.subList(4, 4 + wordCount * 2).chunked(2).map { (word, _) -> word }
@@ -41,5 +41,5 @@ fun readThesaurus() {
 
 fun getHyponyms(word: String): List<String> {
     return wordSynsets.getOrDefault(word, mutableListOf()).flatMap { synsetHyponyms.getOrDefault(it, listOf()) }
-        .flatMap { synsetWords[it] ?: throw DictionaryError("Empty synset") }
+        .flatMap { synsetWords[it] ?: throw DictionaryError("Empty synset") }.toSet().toList()
 }
