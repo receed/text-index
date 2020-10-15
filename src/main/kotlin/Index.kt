@@ -63,12 +63,11 @@ class Index(private val lines: List<String>) {
     }
 
     fun generateGroupReport(group: String): List<String> {
-        var totalOccurrences = 0
-        val report = getHyponyms(group).mapNotNull {
+        val frequencies = getHyponyms(group).mapNotNull {
             val occurrences = defaultToOccurrences.getOrDefault(it, 0)
-            totalOccurrences += occurrences
-            if (occurrences > 0) "  $it: $occurrences occurrences" else null
-        }
-        return listOf("$group: total $totalOccurrences occurrences") + report
+            if (occurrences > 0) WordFrequency(it, occurrences) else null
+        }.sortedByDescending { it.occurrences }
+        val totalOccurrences = frequencies.sumOf { it.occurrences }
+        return listOf("$group: total ${totalOccurrences} occurrences") + frequencies.map { (word, occurrences) -> "  $word: $occurrences occurrences" }
     }
 }
