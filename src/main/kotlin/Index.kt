@@ -8,14 +8,19 @@ data class WordFrequency(val word: String, val occurrences: Int)
 class Index(private val lines: List<String>) {
     // Numbers of lines containing given form
     private val formToLines = mutableMapOf<String, MutableSet<Int>>()
+
     // Numbers of pages containing given default form
     private val defaultToPages = mutableMapOf<String, MutableSet<Int>>()
+
     // Numbers of lines containing given default form
     private val defaultToLines = mutableMapOf<String, MutableSet<Int>>()
+
     // Number of occurrences of given default form
     private val defaultToOccurrences = mutableMapOf<String, Int>()
+
     // Forms corresponding to given default form
     private val defaultToForms = mutableMapOf<String, MutableSet<String>>()
+
     // Default form corresponding to given form
     private val formToDefault = mutableMapOf<String, String>()
 
@@ -53,7 +58,7 @@ class Index(private val lines: List<String>) {
         if (word !in defaultToOccurrences)
             return listOf("$word: no occurrences")
         return listOf("$word: ${defaultToOccurrences.getOrDefault(word, 0)} occurrences") +
-            wrap("used forms: " + (defaultToForms[word]?.joinToString(", ") ?: "")) +
-            wrap("found on pages: " + (defaultToPages[word]?.joinToString(", ") ?: ""))
+                wrap("used forms: " + (defaultToForms[word]?.joinToString(", ") ?: "")) +
+                wrap("found on pages: " + (defaultToPages[word]?.joinToString(", ") ?: ""))
     }
 }
