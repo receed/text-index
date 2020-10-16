@@ -3,6 +3,7 @@ import kotlinx.cli.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.lang.IllegalStateException
+import kotlin.random.Random
 
 // Maximum number of non-empty lines on a page
 val LINES_PER_PAGE = 45
@@ -40,7 +41,7 @@ fun getIndex(fileName: String): Index {
 
 // Writes lines to file or to result.txt
 fun writeFile(fileName: String?, lines: List<String>) {
-    File(fileName ?: "result.txt").writeText(lines.joinToString("\n"))
+    File(fileName ?: "data/result.txt").writeText(lines.joinToString("\n"))
 }
 
 // Wraps long lines. Returns list of lines not longer than [width]
