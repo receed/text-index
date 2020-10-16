@@ -25,9 +25,6 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0'
 }
 
-test {
-    useJUnitPlatform()
-}
 task dictionaries {
     if (!file("odict.csv").exists()) {
         copy {
@@ -42,6 +39,11 @@ task dictionaries {
         }
     }
 
+}
+test {
+    dependsOn dictionaries
+    maxHeapSize = "1024m"
+    useJUnitPlatform()
 }
 run {
     dependsOn dictionaries
