@@ -4,7 +4,7 @@ import java.io.File
 val ignoredParts = setOf("межд.", "союз", "част.", "предл.", "мс-п")
 
 // Parses dictionary of forms from odict.ru
-// Uses odict.csv file in utf-8 charset
+// Uses odict.csv file
 class Dictionary {
     // Part of speech of the given word
     private val partOfSpeech = mutableMapOf<String, String>()
@@ -14,7 +14,7 @@ class Dictionary {
 
     // List of possible forms of given default form. Initialization fills partOfSpeech and ignoredWords
     private val defaultToForms: Map<String, List<String>> =
-        File("odict.csv").readLines().map { line ->
+        File("odict.csv").readLines(charset("cp1251")).map { line ->
             val words = line.toLowerCase().split(",")
             val defaultForm = words[0]
             partOfSpeech[defaultForm] = words[1]

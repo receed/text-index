@@ -23,10 +23,27 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0'
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0'
 }
+
 test {
     useJUnitPlatform()
 }
+task dictionaries {
+    if (!file("odict.csv").exists()) {
+        copy {
+            from zipTree("odict.csv.zip")
+            into '.'
+        }
+    }
+    if (!file("rwn3").exists()) {
+        copy {
+            from zipTree("rwn3.zip")
+            into '.'
+        }
+    }
+
+}
 run {
+    dependsOn dictionaries
 //    args = ["index", "-i", "data/Childhood.txt", "-o", "data/index.txt"]
 //    args = ["lines", "пока", "-i", "data/index.txt", "-o", "data/result.txt"]
 //    args = ["common", "100", "-i", "data/index.txt", "-o", "data/result.txt"]
