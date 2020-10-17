@@ -58,6 +58,13 @@ fun wrap(line: String, width: Int = 120): List<String> {
     return result.map { it.toString() }
 }
 
+// Generates answers for tests using current version of program
+fun generateAnswers() {
+    main(arrayOf("lines", "пока", "-i", "data/index.txt", "-o", "data/lines.a"))
+    main(arrayOf("common", "100", "-i", "data/index.txt", "-o", "data/common.a"))
+    main(arrayOf("info", "голова", "взглянуть", "-i", "data/index.txt", "-o", "data/info.a"))
+}
+
 // Entry point
 @ExperimentalCli
 fun main(args: Array<String>) {
@@ -107,7 +114,12 @@ fun main(args: Array<String>) {
             writeFile(output, words.flatMap { listOf("$it:") + index.findLines(it) })
         }
     }
-    parser.subcommands(Index(), Common(), Info(), Group(), Lines())
+    class GenerateAnswers : Subcommand("gen", "Generate answers for tests") {
+        override fun execute() {
+            generateAnswers()
+        }
+    }
+    parser.subcommands(Index(), Common(), Info(), Group(), Lines(), GenerateAnswers())
     try {
         parser.parse(args)
     } catch (e: InvalidInputException) {
@@ -121,4 +133,3 @@ fun main(args: Array<String>) {
         println("Unknown error")
     }
 }
-

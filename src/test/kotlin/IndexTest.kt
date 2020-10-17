@@ -1,7 +1,9 @@
 import org.junit.Assert.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.Tag
 
+@Tag("unitTest")
 class IndexTest {
     companion object {
         val dictionary = Dictionary()
@@ -12,7 +14,7 @@ class IndexTest {
         }
     }
     @Test
-    fun getMostFrquent() {
+    fun getMostFrequent() {
         assertEquals(listOf(WordFrequency("форма", 4), WordFrequency("двойка", 2)),
             index.getMostFrequent(2))
     }
@@ -27,6 +29,6 @@ class IndexTest {
     }
     @Test
     fun generateGroupReport() {
-        
+
     }
 }

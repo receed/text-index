@@ -25,6 +25,13 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0'
 }
 
+kotlin {
+    sourceSets {
+        main.kotlin.srcDirs += 'src/main/kotlin/'
+        test.kotlin.srcDirs += 'src/test/kotlin/'
+    }
+}
+
 task dictionaries {
     if (!file("odict.csv").exists()) {
         copy {
@@ -40,16 +47,26 @@ task dictionaries {
     }
 
 }
+task integration(type: Test) {
+    dependsOn dictionaries
+    maxHeapSize = "1024m"
+    useJUnitPlatform {
+        includeTags 'integrationTest'
+    }
+}
 test {
     dependsOn dictionaries
     maxHeapSize = "1024m"
-    useJUnitPlatform()
+    useJUnitPlatform {
+        includeTags 'unitTest'
+    }
 }
 run {
     dependsOn dictionaries
 //    args = ["index", "-i", "data/Childhood.txt", "-o", "data/index.txt"]
 //    args = ["lines", "пока", "-i", "data/index.txt", "-o", "data/result.txt"]
-//    args = ["common", "100", "-i", "data/index.txt", "-o", "data/result.txt"]
+    args = ["common", "100", "-i", "data/index.txt", "-o", "data/result.txt"]
 //    args = ["info", "голова", "взглянуть", "-i", "data/index.txt", "-o", "data/result.txt"]
-    args = ["group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/result.txt"]
+//    args = ["group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/result.txt"]
+//    args = ["gen", "-i", "data/Childhood.txt"]
 }

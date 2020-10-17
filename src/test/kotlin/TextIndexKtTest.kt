@@ -1,7 +1,9 @@
 import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.Tag
 import org.junit.jupiter.api.Test
 import java.io.File
 
+@Tag("unitTest")
 class TextIndexKtTest {
     @Test
     fun lineToWords() {
