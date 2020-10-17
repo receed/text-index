@@ -68,7 +68,7 @@ fun generateAnswers() {
 // Entry point
 @ExperimentalCli
 fun main(args: Array<String>) {
-    val parser = ArgParser("example")
+    val parser = ArgParser("TextIndex")
     val input by parser.option(ArgType.String, shortName = "i", description = "Input file name").required()
     val output by parser.option(ArgType.String, shortName = "o", description = "Output file name")
 
