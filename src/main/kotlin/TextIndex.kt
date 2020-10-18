@@ -63,7 +63,7 @@ fun generateAnswers() {
     main(arrayOf("lines", "пока", "-i", "data/index.txt", "-o", "data/lines.a"))
     main(arrayOf("common", "100", "-i", "data/index.txt", "-o", "data/common.a"))
     main(arrayOf("info", "голова", "взглянуть", "-i", "data/index.txt", "-o", "data/info.a"))
-    main(arrayOf("group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/result.txt"))
+    main(arrayOf("group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/group.a"))
 }
 
 // Entry point

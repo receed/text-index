@@ -67,6 +67,6 @@ run {
 //    args = ["lines", "пока", "-i", "data/index.txt", "-o", "data/result.txt"]
 //    args = ["common", "100", "-i", "data/index.txt", "-o", "data/result.txt"]
 //    args = ["info", "голова", "взглянуть", "-i", "data/index.txt", "-o", "data/result.txt"]
-    args = ["group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/result.txt"]
-//    args = ["gen", "-i", "data/Childhood.txt"]
+//    args = ["group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/result.txt"]
+    args = ["gen", "-i", "data/Childhood.txt"]
 }

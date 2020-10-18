@@ -28,4 +28,9 @@ class IntegrationTest {
         main(arrayOf("info", "голова", "взглянуть", "-i", "data/index.txt", "-o", "data/result.txt"))
         assertEquals(File("data/info.a").readText(), File("data/result.txt").readText())
     }
+    @Test
+    fun group() {
+        main(arrayOf("group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/result.txt"))
+        assertEquals(File("data/group.a").readText(), File("data/result.txt").readText())
+    }
 }
