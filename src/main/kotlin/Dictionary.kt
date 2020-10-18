@@ -13,7 +13,7 @@ class Dictionary {
     private val ignoredWords = mutableSetOf<String>("я", "он")
 
     // List of possible forms of given default form. Initialization fills partOfSpeech and ignoredWords
-    private val defaultToForms: Map<String, List<String>> =
+    private val lemmaToForms: Map<String, List<String>> =
         File("odict.csv").readLines(charset("cp1251")).map { line ->
             val words = line.toLowerCase().split(",")
             val defaultForm = words[0]
@@ -24,8 +24,8 @@ class Dictionary {
         }.toMap().filterKeys { it !in ignoredWords } // removes function words
 
     // List of forms corresponding to given default form
-    val formToDefault =
-        defaultToForms.map { (default, forms) ->
+    val formToLemma =
+        lemmaToForms.map { (default, forms) ->
             forms.map { it to default }
         }.flatten().toMap()
 }
