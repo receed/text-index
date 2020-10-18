@@ -68,6 +68,6 @@ class Index(private val lines: List<String>) {
             if (occurrences > 0) WordFrequency(it, occurrences) else null
         }.sortedByDescending { it.occurrences }
         val totalOccurrences = frequencies.sumOf { it.occurrences }
-        return listOf("$group: total ${totalOccurrences} occurrences") + frequencies.map { (word, occurrences) -> "  $word: $occurrences occurrences" }
+        return listOf("$group: total $totalOccurrences occurrences") + frequencies.map { (word, occurrences) -> "  $word: $occurrences occurrences" }
     }
 }

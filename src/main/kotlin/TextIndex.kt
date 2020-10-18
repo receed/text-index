@@ -3,10 +3,9 @@ import kotlinx.cli.*
 import kotlinx.serialization.*
 import kotlinx.serialization.json.*
 import java.lang.IllegalStateException
-import kotlin.random.Random
 
 // Maximum number of non-empty lines on a page
-val LINES_PER_PAGE = 45
+const val LINES_PER_PAGE = 45
 
 // Exception for invalid input
 class InvalidInputException(message: String) : Exception(message)
@@ -33,7 +32,7 @@ fun getIndex(fileName: String): Index {
     if (!file.exists())
         throw InvalidInputException("$fileName: no such file")
     return try {
-        Json.decodeFromString<Index>(file.readText())
+        Json.decodeFromString(file.readText())
     } catch (e: Exception) {
         throw InvalidInputException("Index file is invalid")
     }
@@ -59,6 +58,7 @@ fun wrap(line: String, width: Int = 120): List<String> {
 }
 
 // Generates answers for tests using current version of program
+@ExperimentalCli
 fun generateAnswers() {
     main(arrayOf("lines", "пока", "-i", "data/index.txt", "-o", "data/lines.a"))
     main(arrayOf("common", "100", "-i", "data/index.txt", "-o", "data/common.a"))
@@ -87,7 +87,7 @@ fun main(args: Array<String>) {
         val count by argument(ArgType.Int, description = "Number of most frequent words to find")
         override fun execute() {
             val index = getIndex(input)
-            writeFile(output, index.getMostFrequent(count).map { (word, occurences) -> "$word: $occurences" })
+            writeFile(output, index.getMostFrequent(count).map { (word, occurrences) -> "$word: $occurrences" })
         }
     }
 

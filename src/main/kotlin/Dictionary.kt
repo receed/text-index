@@ -10,7 +10,7 @@ class Dictionary {
     private val partOfSpeech = mutableMapOf<String, String>()
 
     // Words which should be ignored in index. Needed because one word may belong to several parts of speech
-    private val ignoredWords = mutableSetOf<String>("я", "он")
+    private val ignoredWords = mutableSetOf("я", "он")
 
     // List of possible forms of given default form. Initialization fills partOfSpeech and ignoredWords
     private val lemmaToForms: Map<String, List<String>> =
