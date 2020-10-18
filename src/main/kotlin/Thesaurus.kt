@@ -9,7 +9,6 @@ data class Synset(val offset: Int, val category: Char)
 val wordSynsets = mutableMapOf<String, MutableList<Synset>>()
 val synsetWords = mutableMapOf<Synset, List<String>>()
 val synsetHyponyms = mutableMapOf<Synset, List<Synset>>()
-val wordsInCategory = mutableMapOf<String, List<String>>()
 val hyponymSymbols = setOf("~", "-c")
 
 fun readThesaurus() {
@@ -39,7 +38,19 @@ fun readThesaurus() {
     }
 }
 
+fun getHyponymSynsets(synsets: List<Synset>): Set<Synset> {
+    val toProcess = synsets.toMutableSet()
+    val result = mutableSetOf<Synset>()
+    while (toProcess.isNotEmpty()) {
+        val current = toProcess.first()
+        result.add(current)
+        toProcess.remove(current)
+        synsetHyponyms[current]?.let { toProcess.addAll(it) }
+    }
+    return result
+}
+
 fun getHyponyms(word: String): List<String> {
-    return wordSynsets.getOrDefault(word, mutableListOf()).flatMap { synsetHyponyms.getOrDefault(it, listOf()) }
+    return getHyponymSynsets(wordSynsets.getOrDefault(word, mutableListOf()))
         .flatMap { synsetWords[it] ?: throw DictionaryError("Empty synset") }.toSet().toList()
 }
