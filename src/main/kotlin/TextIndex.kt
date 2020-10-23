@@ -58,7 +58,6 @@ fun wrap(line: String, width: Int = 120): List<String> {
 }
 
 // Generates answers for tests using current version of program
-@ExperimentalCli
 fun generateAnswers() {
     main(arrayOf("lines", "пока", "-i", "data/index.txt", "-o", "data/lines.a"))
     main(arrayOf("common", "100", "-i", "data/index.txt", "-o", "data/common.a"))
@@ -66,15 +65,18 @@ fun generateAnswers() {
     main(arrayOf("group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/group.a"))
 }
 
-// Entry point
-@ExperimentalCli
-fun main(args: Array<String>) {
+// ArgParser can be used only once so we have to create it every time we call main()
+// If ArgParser is initialized inside main() then input and output values will be inside main()
+// And every subcommand which uses input and output will be inside main()
+// To avoid this we create a class containg input, output and subcommands
+
+class Main {
     val parser = ArgParser("TextIndex")
     val input by parser.option(ArgType.String, shortName = "i", description = "Input file name").required()
     val output by parser.option(ArgType.String, shortName = "o", description = "Output file name")
 
     // Subcommands for different modes
-    class Index : Subcommand("index", "Create index of file") {
+    inner class CreateIndex : Subcommand("index", "Create index of file") {
         override fun execute() {
             val lines = readFile(input)
             val dictionary = Dictionary()
@@ -83,7 +85,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    class Common : Subcommand("common", "Get most common words") {
+    inner class Common : Subcommand("common", "Get most common words") {
         val count by argument(ArgType.Int, description = "Number of most frequent words to find")
         override fun execute() {
             val index = getIndex(input)
@@ -91,7 +93,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    class Group : Subcommand("group", "Get usage data for words in a group") {
+    inner class Group : Subcommand("group", "Get usage data for words in a group") {
         val groups by argument(ArgType.String, description = "Groups to find").vararg()
         override fun execute() {
             val index = getIndex(input)
@@ -100,7 +102,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    class Info : Subcommand("info", "Analyze usage of given words") {
+    inner class Info : Subcommand("info", "Analyze usage of given words") {
         val words by argument(ArgType.String, description = "Words to find").vararg()
         override fun execute() {
             val index = getIndex(input)
@@ -108,29 +110,36 @@ fun main(args: Array<String>) {
         }
     }
 
-    class Lines : Subcommand("lines", "Find lines containing word") {
+    inner class Lines : Subcommand("lines", "Find lines containing word") {
         val words by argument(ArgType.String, description = "Words to find").vararg()
         override fun execute() {
             val index = getIndex(input)
             writeFile(output, words.flatMap { listOf("$it:") + index.findLines(it) })
         }
     }
-    class GenerateAnswers : Subcommand("gen", "Generate answers for tests") {
+
+    inner class GenerateAnswers : Subcommand("gen", "Generate answers for tests") {
         override fun execute() {
             generateAnswers()
         }
     }
-    parser.subcommands(Index(), Common(), Info(), Group(), Lines(), GenerateAnswers())
-    try {
-        parser.parse(args)
-    } catch (e: InvalidInputException) {
-        println(e.message)
-    } catch (e: DictionaryError) {
-        println("Dictionary contains errors: ${e.message}")
-    } catch (e: IllegalStateException) {
-        println(e.message)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        println("Unknown error")
+
+    // Entry point
+    fun main(args: Array<String>) {
+        parser.subcommands(CreateIndex(), Common(), Info(), Group(), Lines(), GenerateAnswers())
+        try {
+            parser.parse(args)
+        } catch (e: InvalidInputException) {
+            println(e.message)
+        } catch (e: DictionaryError) {
+            println("Dictionary contains errors: ${e.message}")
+        } catch (e: IllegalStateException) {
+            println(e.message)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            println("Unknown error")
+        }
     }
 }
+
+fun main(args: Array<String>) = Main().main(args)
