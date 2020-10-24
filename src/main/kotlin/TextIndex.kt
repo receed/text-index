@@ -65,6 +65,29 @@ fun generateAnswers() {
     main(arrayOf("group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/group.a"))
 }
 
+fun createIndex(inputFileName: String, outputFileName: String) {
+    val lines = readFile(inputFileName)
+    val dictionary = Dictionary()
+    val index = Index(lines, dictionary)
+    File(outputFileName).writeText(Json.encodeToString(index))
+}
+
+private fun getIndexFileName(inputFile: String) =
+    "${if (inputFile.endsWith(".txt")) inputFile.dropLast(4) else inputFile}.json"
+
+fun getOrCreateIndex(inputFileName: String): Index {
+    if (inputFileName.endsWith(".json"))
+        return getIndex(inputFileName)
+    val outputFileName = getIndexFileName(inputFileName)
+    val inputFile = File(inputFileName)
+    val outputFile = File(outputFileName)
+    if (!inputFile.exists())
+        throw InvalidInputException("$inputFileName: no such file")
+    if (!outputFile.exists() || outputFile.lastModified() < inputFile.lastModified())
+        createIndex(inputFileName, outputFileName)
+    return getIndex(outputFileName)
+}
+
 // ArgParser can be used only once so we have to create it every time we call main()
 // If ArgParser is initialized inside main() then input and output values will be inside main()
 // And every subcommand which uses input and output will be inside main()
@@ -78,17 +101,21 @@ class Main {
     // Subcommands for different modes
     inner class CreateIndex : Subcommand("index", "Create index of file") {
         override fun execute() {
-            val lines = readFile(input)
-            val dictionary = Dictionary()
-            val index = Index(lines, dictionary)
-            File(output ?: "index.txt").writeText(Json.encodeToString(index))
+            val outputFileName = getIndexFileName(input)
+            output?.let {
+                if (!it.endsWith(".json")) {
+                    println("Output file for index mode should be *.json. Using $outputFileName instead")
+                    createIndex(input, outputFileName)
+                } else
+                    createIndex(input, it)
+            } ?: createIndex(input, outputFileName)
         }
     }
 
     inner class Common : Subcommand("common", "Get most common words") {
         val count by argument(ArgType.Int, description = "Number of most frequent words to find")
         override fun execute() {
-            val index = getIndex(input)
+            val index = getOrCreateIndex(input)
             writeFile(output, index.getMostFrequent(count).map { (word, occurrences) -> "$word: $occurrences" })
         }
     }
@@ -96,7 +123,7 @@ class Main {
     inner class Group : Subcommand("group", "Get usage data for words in a group") {
         val groups by argument(ArgType.String, description = "Groups to find").vararg()
         override fun execute() {
-            val index = getIndex(input)
+            val index = getOrCreateIndex(input)
             readThesaurus()
             writeFile(output, groups.flatMap { index.generateGroupReport(it) })
         }
@@ -105,7 +132,7 @@ class Main {
     inner class Info : Subcommand("info", "Analyze usage of given words") {
         val words by argument(ArgType.String, description = "Words to find").vararg()
         override fun execute() {
-            val index = getIndex(input)
+            val index = getOrCreateIndex(input)
             writeFile(output, words.flatMap { index.generateReport(it) })
         }
     }
@@ -113,7 +140,7 @@ class Main {
     inner class Lines : Subcommand("lines", "Find lines containing word") {
         val words by argument(ArgType.String, description = "Words to find").vararg()
         override fun execute() {
-            val index = getIndex(input)
+            val index = getOrCreateIndex(input)
             writeFile(output, words.flatMap { listOf("$it:") + index.findLines(it) })
         }
     }

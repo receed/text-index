@@ -63,10 +63,11 @@ test {
 }
 run {
     dependsOn dictionaries
-//    args = ["index", "-i", "data/Childhood.txt", "-o", "data/index.txt"]
-//    args = ["lines", "пока", "-i", "data/index.txt", "-o", "data/result.txt"]
-    args = ["common", "100", "-i", "data/index.txt", "-o", "data/result.txt"]
-//    args = ["info", "голова", "взглянуть", "-i", "data/index.txt", "-o", "data/result.txt"]
-//    args = ["group", "человек", "мебель", "-i", "data/index.txt", "-o", "data/result.txt"]
+//    args = ["index", "-i", "data/Childhood.txt"]
+//    args = ["lines", "пока", "-i", "data/Childhood.txt", "-o", "data/result.txt"]
+//    args = ["common", "100", "-i", "data/Childhood.txt", "-o", "data/result.txt"]
+    args = ["common", "100", "-i", "data/Childhood.json", "-o", "data/result.txt"]
+//    args = ["info", "голова", "взглянуть", "-i", "data/Childhood.txt", "-o", "data/result.txt"]
+//    args = ["group", "человек", "мебель", "-i", "data/Childhood.txt", "-o", "data/result.txt"]
 //    args = ["gen", "-i", "data/Childhood.txt"]
 }

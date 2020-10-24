@@ -75,7 +75,7 @@ gradle
 .idea
 build
 odict.csv
-data/index.txt
+data/*.json
 data/result.txt
 rwn3
 
