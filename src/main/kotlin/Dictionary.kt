@@ -3,7 +3,7 @@ import java.io.File
 // Parts of speech which should be ignored in index
 val ignoredParts = setOf("межд.", "союз", "част.", "предл.", "мс-п")
 
-// Parses dictionary of forms from odict.ru
+// Parses dictionary of word forms from odict.ru
 // Uses odict.csv file
 class Dictionary {
     // Part of speech of the given word
@@ -12,20 +12,20 @@ class Dictionary {
     // Words which should be ignored in index. Needed because one word may belong to several parts of speech
     private val ignoredWords = mutableSetOf("я", "он")
 
-    // List of possible forms of given default form. Initialization fills partOfSpeech and ignoredWords
-    private val lemmaToForms: Map<String, List<String>> =
+    // List of possible word forms of given lemma. Initialization fills partOfSpeech and ignoredWords
+    private val lemmaToWordForms: Map<String, List<String>> =
         File("odict.csv").readLines(charset("cp1251")).map { line ->
             val words = line.toLowerCase().split(",")
-            val defaultForm = words[0]
-            partOfSpeech[defaultForm] = words[1]
+            val lemma = words[0]
+            partOfSpeech[lemma] = words[1]
             if (words[1] in ignoredParts)
-                ignoredWords.add(defaultForm)
-            defaultForm to words.drop(2) + defaultForm
+                ignoredWords.add(lemma)
+            lemma to words.drop(2) + lemma
         }.toMap().filterKeys { it !in ignoredWords } // removes function words
 
-    // List of forms corresponding to given default form
-    val formToLemma =
-        lemmaToForms.map { (default, forms) ->
-            forms.map { it to default }
+    // List of word forms corresponding to given lemma
+    val wordFormToLemma =
+        lemmaToWordForms.map { (default, wordForms) ->
+            wordForms.map { it to default }
         }.flatten().toMap()
 }

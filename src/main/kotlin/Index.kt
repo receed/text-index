@@ -6,8 +6,8 @@ data class WordFrequency(val word: String, val occurrences: Int)
 // Represents index of a text
 @Serializable
 class Index(private val lines: List<String>) {
-    // Numbers of lines containing given form
-    private val formToLines = mutableMapOf<String, MutableSet<Int>>()
+    // Numbers of lines containing given word form
+    private val wordFormToLines = mutableMapOf<String, MutableSet<Int>>()
 
     // Numbers of pages containing given lemma
     private val lemmaToPages = mutableMapOf<String, MutableSet<Int>>()
@@ -18,24 +18,24 @@ class Index(private val lines: List<String>) {
     // Number of occurrences of given lemma
     private val lemmaToOccurrences = mutableMapOf<String, Int>()
 
-    // Forms corresponding to given lemma
-    private val lemmaToForms = mutableMapOf<String, MutableSet<String>>()
+    // Word forms corresponding to given lemma
+    private val lemmaToWordForms = mutableMapOf<String, MutableSet<String>>()
 
-    // Lemma corresponding to given form
-    private val formToLemma = mutableMapOf<String, String>()
+    // Lemma corresponding to given word form
+    private val wordFormToLemma = mutableMapOf<String, String>()
 
     // Creates the index using the dictionary of word forms
     constructor(lines: List<String>, dictionary: Dictionary) : this(lines) {
         for ((lineNumber, line) in lines.withIndex())
             for (word in lineToWords(line)) {
-                formToLines.getOrPut(word, { mutableSetOf() }).add(lineNumber)
-                val lemma = dictionary.formToLemma[word]
+                wordFormToLines.getOrPut(word, { mutableSetOf() }).add(lineNumber)
+                val lemma = dictionary.wordFormToLemma[word]
                 lemma?.let {
-                    lemmaToForms.getOrPut(it, { mutableSetOf() }).add(word)
+                    lemmaToWordForms.getOrPut(it, { mutableSetOf() }).add(word)
                     lemmaToPages.getOrPut(it, { mutableSetOf() }).add(getPageOfLine(lineNumber))
                     lemmaToLines.getOrPut(it, { mutableSetOf() }).add(lineNumber)
                     lemmaToOccurrences[it] = lemmaToOccurrences.getOrDefault(it, 0) + 1
-                    formToLemma[word] = it
+                    wordFormToLemma[word] = it
                 }
             }
     }
@@ -47,9 +47,9 @@ class Index(private val lines: List<String>) {
 
     // Returns lines (with prepended numbers) containing given word
     fun findLines(word: String): List<String> {
-        return (formToLemma[word]?.let {
+        return (wordFormToLemma[word]?.let {
             lemmaToLines[it]
-        } ?: formToLines[word]).orEmpty().sorted().map { "${it + 1}: ${lines[it]}" }
+        } ?: wordFormToLines[word]).orEmpty().sorted().map { "${it + 1}: ${lines[it]}" }
     }
 
     // Returns formatted number of occurrences of a word, list of used forms of it, and numbers of pages where it
@@ -58,12 +58,12 @@ class Index(private val lines: List<String>) {
         if (word !in lemmaToOccurrences)
             return listOf("$word: no occurrences")
         return listOf("$word: ${lemmaToOccurrences.getOrDefault(word, 0)} occurrences") +
-                wrap("used forms: " + (lemmaToForms[word]?.joinToString(", ") ?: "")) +
+                wrap("used forms: " + (lemmaToWordForms[word]?.joinToString(", ") ?: "")) +
                 wrap("found on pages: " + (lemmaToPages[word]?.joinToString(", ") ?: ""))
     }
 
     fun generateGroupReport(group: String): List<String> {
-        val frequencies = getHyponyms(group).mapNotNull {
+        val frequencies = getGroupMembers(group).mapNotNull {
             val occurrences = lemmaToOccurrences.getOrDefault(it, 0)
             if (occurrences > 0) WordFrequency(it, occurrences) else null
         }.sortedByDescending { it.occurrences }

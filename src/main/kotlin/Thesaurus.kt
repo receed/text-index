@@ -1,5 +1,4 @@
 import java.io.File
-import java.lang.Exception
 
 val syntacticCategoryNames = mapOf('n' to "noun", 'v' to "verb", 'a' to "adj", 'r' to "adv")
 
@@ -8,8 +7,8 @@ data class Synset(val offset: Int, val category: Char)
 
 val wordSynsets = mutableMapOf<String, MutableList<Synset>>()
 val synsetWords = mutableMapOf<Synset, List<String>>()
-val synsetHyponyms = mutableMapOf<Synset, List<Synset>>()
-val hyponymSymbols = setOf("~", "-c")
+val synsetSubgroups = mutableMapOf<Synset, List<Synset>>()
+val subgroupSymbols = setOf("~", "-c")
 
 fun readThesaurus() {
     for ((categorySymbol, category) in syntacticCategoryNames) {
@@ -31,26 +30,26 @@ fun readThesaurus() {
             val pointerCount = items[4 + wordCount * 2].toInt()
             val synset = Synset(items[0].toInt(), categorySymbol)
             synsetWords[synset] = items.subList(4, 4 + wordCount * 2).chunked(2).map { (word, _) -> word }
-            synsetHyponyms[synset] = items.drop(5 + wordCount * 2).chunked(4).take(pointerCount)
-                .filter { it[0] in hyponymSymbols }
+            synsetSubgroups[synset] = items.drop(5 + wordCount * 2).chunked(4).take(pointerCount)
+                .filter { it[0] in subgroupSymbols }
                 .map { (_, synsetOffset, pointerCategory, _) -> Synset(synsetOffset.toInt(), pointerCategory[0]) }
         }
     }
 }
 
-fun getHyponymSynsets(synsets: List<Synset>): Set<Synset> {
+fun getSynsetSubgroups(synsets: List<Synset>): Set<Synset> {
     val toProcess = synsets.toMutableSet()
     val result = mutableSetOf<Synset>()
     while (toProcess.isNotEmpty()) {
         val current = toProcess.first()
         result.add(current)
         toProcess.remove(current)
-        synsetHyponyms[current]?.let { toProcess.addAll(it) }
+        synsetSubgroups[current]?.let { toProcess.addAll(it) }
     }
     return result
 }
 
-fun getHyponyms(word: String): List<String> {
-    return getHyponymSynsets(wordSynsets.getOrDefault(word, mutableListOf()))
+fun getGroupMembers(word: String): List<String> {
+    return getSynsetSubgroups(wordSynsets.getOrDefault(word, mutableListOf()))
         .flatMap { synsetWords[it] ?: throw DictionaryError("Empty synset") }.toSet().toList()
 }

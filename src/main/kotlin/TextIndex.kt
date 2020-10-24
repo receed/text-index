@@ -68,7 +68,7 @@ fun generateAnswers() {
 // ArgParser can be used only once so we have to create it every time we call main()
 // If ArgParser is initialized inside main() then input and output values will be inside main()
 // And every subcommand which uses input and output will be inside main()
-// To avoid this we create a class containg input, output and subcommands
+// To avoid this we create a class containing parser, input, output and subcommands
 
 class Main {
     val parser = ArgParser("TextIndex")
