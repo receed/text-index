@@ -1,0 +1,73 @@
+plugins {
+    id 'application'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.4.10'
+}
+
+group 'org.example'
+version '1.0-SNAPSHOT'
+mainClassName = 'TextIndexKt'
+
+repositories {
+    mavenCentral()
+    maven { url "https://kotlin.bintray.com/kotlinx" }
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:5.6.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-cli:0.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0'
+}
+
+kotlin {
+    sourceSets {
+        main.kotlin.srcDirs += 'src/main/kotlin/'
+        test.kotlin.srcDirs += 'src/test/kotlin/'
+    }
+}
+
+task dictionaries {
+    if (!file("odict.csv").exists()) {
+        copy {
+            from zipTree("odict.csv.zip")
+            into '.'
+        }
+    }
+    if (!file("rwn3").exists()) {
+        copy {
+            from zipTree("rwn3.zip")
+            into '.'
+        }
+    }
+
+}
+task integration(type: Test) {
+    dependsOn dictionaries
+    maxHeapSize = "1024m"
+    useJUnitPlatform {
+        includeTags 'integrationTest'
+    }
+}
+test {
+    dependsOn dictionaries
+    maxHeapSize = "1024m"
+    useJUnitPlatform {
+        includeTags 'unitTest'
+    }
+}
+run {
+    dependsOn dictionaries
+//    args = ["index", "-i", "data/Childhood.txt"]
+//    args = ["lines", "пока", "-i", "data/Childhood.txt", "-o", "data/result.txt"]
+//    args = ["common", "100", "-i", "data/Childhood.txt", "-o", "data/result.txt"]
+    args = ["common", "100", "-i", "data/Childhood.json", "-o", "data/result.txt"]
+//    args = ["info", "голова", "взглянуть", "-i", "data/Childhood.txt", "-o", "data/result.txt"]
+//    args = ["group", "человек", "мебель", "-i", "data/Childhood.txt", "-o", "data/result.txt"]
+//    args = ["gen", "-i", "data/Childhood.txt"]
+}
